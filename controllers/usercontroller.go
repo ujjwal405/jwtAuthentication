@@ -178,22 +178,3 @@ func GetUsers() gin.HandlerFunc {
 		c.JSON(http.StatusOK, allusers[0])
 	}
 }
-func GetUser() gin.HandlerFunc {
-	return func(c *gin.Context) {
-		userid := c.Param("user_id")
-		if err := helper.Matchusertypeid(c, userid); err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-			return
-		}
-		var ctx, cancel = context.WithTimeout(context.Background(), 100*time.Second)
-
-		var user models.User
-		err := Usercollection.FindOne(ctx, bson.M{"user_id": userid}).Decode(&user)
-		defer cancel()
-		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-			return
-		}
-		c.JSON(http.StatusOK, user)
-	}
-}
